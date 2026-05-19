@@ -147,4 +147,20 @@ FROM
 	batch_production
 JOIN downtime ON batch_production.Batch_ID = downtime.Batch_ID
 JOIN products ON batch_production.Product_ID = products.Product_ID
-GROUP BY batch_production.Product_ID, Product_Name;
+GROUP BY batch_production.Product_ID, Product_Name
+ORDER BY SUM(MINUTES) DESC;
+
+-- Number of Factors involved in the product downtime
+SELECT
+	batch_production.Product_ID,
+	Product_Name,
+	COUNT(DISTINCT downtime.Factor_ID) AS Count_prod_downtime_factors, 
+	COUNT(batch_production.Batch_ID) AS Frequency,
+	SUM(Minutes) AS Delay_Mins
+FROM 
+	batch_production
+JOIN downtime ON batch_production.Batch_ID = downtime.Batch_ID
+JOIN products ON batch_production.Product_ID = products.Product_ID
+GROUP BY batch_production.Product_ID, Product_Name
+ORDER BY SUM(Minutes) DESC;
+
