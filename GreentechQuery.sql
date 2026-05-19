@@ -83,4 +83,68 @@ JOIN
 GROUP BY
 	batch_production.Batch_ID, Extra_Time_Hr;
 
-----join 
+---Analysis
+--- Downtime Key Factors
+SELECT 
+	Factor_Name, 
+	COUNT(Batch_ID) AS Frequency, 
+	SUM(Minutes) AS Delay_Mins 
+FROM
+	downtime
+JOIN
+	downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
+GROUP BY
+	Factor_Name
+ORDER BY Frequency DESC
+
+---Operator vs non-operator errors
+SELECT
+	CASE Operator_Error
+		WHEN 1 THEN 'Yes'
+		ELSE 'No'
+	END AS Operator_Error,
+	COUNT(Batch_ID) AS Frequency,
+	SUM(Minutes) AS Delay_Mins
+FROM 
+	downtime
+JOIN downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
+GROUP BY
+	Operator_Error
+
+-- Downtime Operator Error
+SELECT
+	Factor_Name,
+	Description,
+	COUNT(Batch_ID) AS Frequency,
+	SUM(Minutes) AS Delay_Mins
+FROM 
+	downtime
+JOIN downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
+WHERE Operator_Error = 1
+GROUP BY Factor_Name, Description
+ORDER BY SUM(Minutes) DESC;
+
+-- Downtime Non Operator Error
+SELECT
+	Factor_Name,
+	Description,
+	COUNT(Batch_ID) AS Frequency,
+	SUM(Minutes) AS Delay_Mins
+FROM 
+	downtime
+JOIN downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
+WHERE Operator_Error = 0
+GROUP BY Factor_Name, Description
+ORDER BY SUM(Minutes) DESC;
+
+-- Products and downtime frequency & delay (mins)
+SELECT 
+	batch_production.Product_ID,
+	Product_Name,
+	COUNT(batch_production.Batch_ID) AS Frequency,
+	SUM(Minutes) AS Delay_Mins
+FROM
+	batch_production
+JOIN downtime ON batch_production.Batch_ID = downtime.Batch_ID
+JOIN products ON batch_production.Product_ID = products.Product_ID
+GROUP BY batch_production.Product_ID, Product_Name;
