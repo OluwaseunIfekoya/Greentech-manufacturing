@@ -97,6 +97,19 @@ GROUP BY
 	Factor_Name
 ORDER BY Frequency DESC
 
+---- Downtime key factors ordered by Minutes
+SELECT 
+	Factor_Name, 
+	COUNT(Batch_ID) AS Frequency, 
+	SUM(Minutes) AS Delay_Mins 
+FROM
+	downtime
+JOIN
+	downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
+GROUP BY
+	Factor_Name
+ORDER BY Delay_Mins DESC
+
 ---Operator vs non-operator errors
 SELECT
 	CASE Operator_Error
@@ -162,5 +175,162 @@ FROM
 JOIN downtime ON batch_production.Batch_ID = downtime.Batch_ID
 JOIN products ON batch_production.Product_ID = products.Product_ID
 GROUP BY batch_production.Product_ID, Product_Name
+ORDER BY SUM(Minutes) DESC;
+
+-- TOP 5 Factors for Product 1 downntime
+SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd001_delay_Mins FROM downtime
+JOIN downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
+JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
+WHERE Product_ID = 'PRD001'
+GROUP BY Factor_Name
+ORDER BY SUM(Minutes) DESC;
+
+--TOP 5 Factors for Product 2 downtime
+SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd002_delay_Mins FROM downtime
+JOIN downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
+JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
+WHERE Product_ID = 'PRD002'
+GROUP BY Factor_Name
+ORDER BY SUM(Minutes) DESC;
+
+--TOP 5 Factors for Product 3 downtime
+SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd003_delay_Mins FROM downtime
+JOIN downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
+JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
+WHERE Product_ID = 'PRD003'
+GROUP BY Factor_Name
+ORDER BY SUM(Minutes) DESC;
+
+--TOP 5 Factors for Product 4 downtime
+SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd004_delay_Mins FROM downtime
+JOIN downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
+JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
+WHERE Product_ID = 'PRD004'
+GROUP BY Factor_Name
+ORDER BY SUM(Minutes) DESC;
+
+-- Production Lead Operators
+SELECT Operator, COUNT(Batch_ID) AS Number_of_batches, COUNT(DISTINCT Product_ID) Number_of_Products
+FROM batch_production
+GROUP BY Operator
+
+-- Production Lead Operators, Downtime Duration, Percentage Delayed batches
+SELECT Operator,
+	COUNT(DISTINCT batch_production.Batch_ID) AS Total_batches,
+	COUNT(DISTINCT downtime.Batch_ID) AS Number_of_delayed_batches,
+	COUNT(downtime.Batch_ID) AS Number_of_downtimes,
+	SUM(Minutes) AS Delay_mins,
+	CAST((COUNT(DISTINCT downtime.Batch_ID)* 100.0)/(COUNT(DISTINCT batch_production.Batch_ID)) AS DECIMAL(10, 2)) AS Percentage_delayed_batches
+FROM batch_production
+LEFT JOIN downtime ON batch_production.Batch_ID = downtime.Batch_ID
+GROUP BY Operator
+ORDER BY Percentage_delayed_batches DESC;
+
+-- Factors causing downtime for top 3 Lead Operators with the most delay duration
+--1. Paul
+SELECT TOP 5 Factor_Name, 
+	SUM(Minutes) AS Delay_mins,
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END AS Operator_Error
+FROM downtime_factors
+JOIN downtime ON downtime_factors.Factor_ID = downtime.Factor_ID
+JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
+WHERE Operator = 'Paul'
+GROUP BY Factor_Name, 
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END
+ORDER BY SUM(Minutes) DESC;
+
+-- 2. James
+SELECT TOP 5 Factor_Name, 
+	SUM(Minutes) AS Delay_mins,
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END AS Operator_Error
+FROM downtime_factors
+JOIN downtime ON downtime_factors.Factor_ID = downtime.Factor_ID
+JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
+WHERE Operator = 'James'
+GROUP BY Factor_Name, 
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END
+ORDER BY SUM(Minutes) DESC;
+
+--3. Emily
+SELECT TOP 5 Factor_Name, 
+	SUM(Minutes) AS Delay_mins,
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END AS Operator_Error
+FROM downtime_factors
+JOIN downtime ON downtime_factors.Factor_ID = downtime.Factor_ID
+JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
+WHERE Operator = 'Emily'
+GROUP BY Factor_Name, 
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END
+ORDER BY SUM(Minutes) DESC;
+
+-- Top 5 Factors causing downtime for the top 3 operators with the most percentage delayed batches.
+-- 1. Linda
+SELECT TOP 5 Factor_Name, 
+	SUM(Minutes) AS Delay_mins,
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END AS Operator_Error
+FROM downtime_factors
+JOIN downtime ON downtime_factors.Factor_ID = downtime.Factor_ID
+JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
+WHERE Operator = 'Linda'
+GROUP BY Factor_Name, 
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END
+ORDER BY SUM(Minutes) DESC;
+-- 2. Sophia
+SELECT TOP 5 Factor_Name, 
+	SUM(Minutes) AS Delay_mins,
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END AS Operator_Error
+FROM downtime_factors
+JOIN downtime ON downtime_factors.Factor_ID = downtime.Factor_ID
+JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
+WHERE Operator = 'Sophia'
+GROUP BY Factor_Name, 
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END
+ORDER BY SUM(Minutes) DESC;
+-- 3. Rita
+SELECT TOP 5 Factor_Name, 
+	SUM(Minutes) AS Delay_mins,
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END AS Operator_Error
+FROM downtime_factors
+JOIN downtime ON downtime_factors.Factor_ID = downtime.Factor_ID
+JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
+WHERE Operator = 'Rita'
+GROUP BY Factor_Name, 
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END
 ORDER BY SUM(Minutes) DESC;
 
