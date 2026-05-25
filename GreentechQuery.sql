@@ -213,6 +213,7 @@ ORDER BY SUM(Minutes) DESC;
 SELECT Operator, COUNT(Batch_ID) AS Number_of_batches, COUNT(DISTINCT Product_ID) Number_of_Products
 FROM batch_production
 GROUP BY Operator
+ORDER BY COUNT(Batch_ID) DESC;
 
 -- Production Lead Operators, Downtime Duration, Percentage Delayed batches
 SELECT Operator,
