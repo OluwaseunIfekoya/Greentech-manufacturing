@@ -154,7 +154,7 @@ ORDER BY SUM(Minutes) DESC;
 SELECT 
 	batch_production.Product_ID,
 	Product_Name,
-	COUNT(batch_production.Batch_ID) AS Frequency,
+	COUNT(downtime.Batch_ID) AS Frequency,
 	SUM(Minutes) AS Delay_Mins
 FROM
 	batch_production
@@ -168,7 +168,7 @@ SELECT
 	batch_production.Product_ID,
 	Product_Name,
 	COUNT(DISTINCT downtime.Factor_ID) AS Count_prod_downtime_factors, 
-	COUNT(batch_production.Batch_ID) AS Frequency,
+	COUNT(downtime.Batch_ID) AS Frequency,
 	SUM(Minutes) AS Delay_Mins
 FROM 
 	batch_production
@@ -177,36 +177,72 @@ JOIN products ON batch_production.Product_ID = products.Product_ID
 GROUP BY batch_production.Product_ID, Product_Name
 ORDER BY SUM(Minutes) DESC;
 
--- TOP 5 Factors for Product 1 downntime
-SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd001_delay_Mins FROM downtime
+-- TOP 5 Factors for Product 1 downntime - Ecowash Liquid Detergent
+SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd001_delay_Mins,
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END AS Operator_Error
+FROM downtime
 JOIN downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
 JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
 WHERE Product_ID = 'PRD001'
-GROUP BY Factor_Name
+GROUP BY Factor_Name,
+CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END
 ORDER BY SUM(Minutes) DESC;
 
---TOP 5 Factors for Product 2 downtime
-SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd002_delay_Mins FROM downtime
+--TOP 5 Factors for Product 2 downtime - Biowipe cleaning sheets
+SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd002_delay_Mins, 
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END AS Operator_Error
+FROM downtime
 JOIN downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
 JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
 WHERE Product_ID = 'PRD002'
-GROUP BY Factor_Name
+GROUP BY Factor_Name,
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END
 ORDER BY SUM(Minutes) DESC;
 
---TOP 5 Factors for Product 3 downtime
-SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd003_delay_Mins FROM downtime
+--TOP 5 Factors for Product 3 downtime - Greenfoam hand soap
+SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd003_delay_Mins,
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END AS Operator_Error
+FROM downtime
 JOIN downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
 JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
 WHERE Product_ID = 'PRD003'
-GROUP BY Factor_Name
+GROUP BY Factor_Name,
+CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END
 ORDER BY SUM(Minutes) DESC;
 
---TOP 5 Factors for Product 4 downtime
-SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd004_delay_Mins FROM downtime
+--TOP 5 Factors for Product 4 downtime - Repack recycled packaging film
+SELECT TOP 5 Factor_Name, SUM(Minutes) as Prd004_delay_Mins,
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END AS Operator_Error
+FROM downtime
 JOIN downtime_factors ON downtime.Factor_ID = downtime_factors.Factor_ID
 JOIN batch_production ON downtime.Batch_ID = batch_production.Batch_ID
 WHERE Product_ID = 'PRD004'
-GROUP BY Factor_Name
+GROUP BY Factor_Name,
+	CASE Operator_Error
+		WHEN 1 THEN 'Operator'
+		ELSE 'Non-Operator'
+	END
 ORDER BY SUM(Minutes) DESC;
 
 -- Production Lead Operators
